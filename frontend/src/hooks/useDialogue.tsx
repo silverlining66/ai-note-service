@@ -7,16 +7,17 @@ import React, { createContext, useContext, useState, useCallback } from 'react'
 import { apiService } from '../services/api'
 import { storage } from '../utils/storage'
 import type { Conversation, Message } from '../types/dialogue'
+import type { KnowledgePoint } from '../types/knowledge'
 
 interface DialogueContextType {
   conversations: Map<string, Conversation>
   getConversation: (knowledgePointId: string) => Conversation | null
   sendMessage: (
-    knowledgePointId: string,
+    knowledgePoint: KnowledgePoint,
     message: string
   ) => Promise<void>
-  switchKnowledgePoint: (knowledgePointId: string) => void
-  currentKnowledgePointId: string | null
+  switchKnowledgePoint: (knowledgePoint: KnowledgePoint) => void
+  currentKnowledgePoint: KnowledgePoint | null
 }
 
 const DialogueContext = createContext<DialogueContextType | null>(null)
@@ -27,8 +28,8 @@ export const DialogueProvider: React.FC<{ children: React.ReactNode }> = ({
   const [conversations, setConversations] = useState<Map<string, Conversation>>(
     new Map()
   )
-  const [currentKnowledgePointId, setCurrentKnowledgePointId] = useState<
-    string | null
+  const [currentKnowledgePoint, setCurrentKnowledgePoint] = useState<
+    KnowledgePoint | null
   >(null)
 
   // Load conversation from localStorage
@@ -85,7 +86,8 @@ export const DialogueProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Send message
   const sendMessage = useCallback(
-    async (knowledgePointId: string, message: string) => {
+    async (knowledgePoint: KnowledgePoint, message: string) => {
+      const knowledgePointId = knowledgePoint.id
       const conversation = getConversation(knowledgePointId)
       if (!conversation) return
 
@@ -111,14 +113,16 @@ export const DialogueProvider: React.FC<{ children: React.ReactNode }> = ({
       })
 
       try {
-        // Get AI response
+        // Get AI response with knowledge point info
         const response = await apiService.getDialogueResponse(
           knowledgePointId,
           message,
           conversation.messages.map((m: Message) => ({
             sender: m.sender,
             content: m.content,
-          }))
+          })),
+          knowledgePoint.title,
+          knowledgePoint.description
         )
 
         // Update user message status
@@ -129,7 +133,9 @@ export const DialogueProvider: React.FC<{ children: React.ReactNode }> = ({
           id: `msg-${Date.now()}-ai`,
           sender: 'ai',
           content: response.message,
-          timestamp: response.timestamp,
+          timestamp: typeof response.timestamp === 'string' 
+            ? new Date(response.timestamp) 
+            : response.timestamp,
         }
 
         const finalConversation: Conversation = {
@@ -170,8 +176,9 @@ export const DialogueProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Switch knowledge point
   const switchKnowledgePoint = useCallback(
-    (knowledgePointId: string) => {
-      setCurrentKnowledgePointId(knowledgePointId)
+    (knowledgePoint: KnowledgePoint) => {
+      setCurrentKnowledgePoint(knowledgePoint)
+      const knowledgePointId = knowledgePoint.id
       // Load conversation if not in memory
       if (!conversations.has(knowledgePointId)) {
         const loaded = loadConversation(knowledgePointId)
@@ -194,7 +201,7 @@ export const DialogueProvider: React.FC<{ children: React.ReactNode }> = ({
         getConversation,
         sendMessage,
         switchKnowledgePoint,
-        currentKnowledgePointId,
+        currentKnowledgePoint,
       }}
     >
       {children}

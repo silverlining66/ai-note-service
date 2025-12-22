@@ -67,6 +67,8 @@ type ConversationMessage struct {
 type DialogueRequest struct {
 	Message             string                `json:"message" binding:"required"`
 	ConversationHistory []ConversationMessage `json:"conversationHistory,omitempty"`
+	KnowledgePointTitle string                `json:"knowledgePointTitle,omitempty"` // 知识点标题（前端传递）
+	KnowledgePointDesc  string                `json:"knowledgePointDesc,omitempty"`  // 知识点描述（前端传递）
 }
 
 // DialogueResponse 对话响应

@@ -13,17 +13,13 @@ import (
 
 // ImageController 图片控制器
 type ImageController struct {
-	mockService          *service.MockKnowledgeService
 	imageAnalysisService *service.ImageAnalysisService
-	useMockData          bool // 控制是否使用假数据
 }
 
 // NewImageController 创建图片控制器
 func NewImageController() *ImageController {
 	return &ImageController{
-		mockService:          service.NewMockKnowledgeService(),
 		imageAnalysisService: service.NewImageAnalysisService(),
-		useMockData:          false, // 使用真实AI分析
 	}
 }
 
@@ -66,14 +62,7 @@ func (ctrl *ImageController) AnalyzeImage(c *gin.Context) {
 		return
 	}
 
-	// 4. 如果使用假数据模式
-	if ctrl.useMockData {
-		mockData := ctrl.mockService.GetMockKnowledgeAnalysis()
-		common.SuccessResponse(c, mockData)
-		return
-	}
-
-	// 5. 使用真实AI服务分析图片
+	// 4. 使用AI服务分析图片
 	log.Printf("开始分析图片: %s (大小: %d bytes)", file.Filename, file.Size)
 	
 	analysisResult, err := ctrl.imageAnalysisService.AnalyzeImage(file)
@@ -85,6 +74,6 @@ func (ctrl *ImageController) AnalyzeImage(c *gin.Context) {
 
 	log.Printf("图片分析成功，识别到 %d 个重点知识点", len(analysisResult.KeyPoints))
 
-	// 6. 返回成功响应
+	// 5. 返回成功响应
 	common.SuccessResponse(c, analysisResult)
 }

@@ -11,6 +11,7 @@ import { ImageUpload } from './components/ImageUpload/ImageUpload'
 import { KnowledgePanel } from './components/KnowledgePanel/KnowledgePanel'
 import { DialoguePanel } from './components/DialoguePanel/DialoguePanel'
 import { PanelLayout } from './components/PanelLayout/PanelLayout'
+import { clearOldMockDataDialogues } from './utils/clearOldCache'
 
 function AppContent() {
   const {
@@ -49,7 +50,7 @@ function AppContent() {
   // Switch dialogue when knowledge point is selected
   React.useEffect(() => {
     if (selectedKnowledgePoint) {
-      switchKnowledgePoint(selectedKnowledgePoint.id)
+      switchKnowledgePoint(selectedKnowledgePoint)
       showPanel('dialogue')
     }
   }, [selectedKnowledgePoint, switchKnowledgePoint, showPanel])
@@ -86,6 +87,11 @@ function AppContent() {
 }
 
 function App() {
+  // Clear old mock data on app startup
+  React.useEffect(() => {
+    clearOldMockDataDialogues()
+  }, [])
+
   return (
     <DialogueProvider>
       <PanelLayoutProvider>

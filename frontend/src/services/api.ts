@@ -1,12 +1,10 @@
 /**
  * API service layer
- * Handles API calls with mock/real API switching
- * Following FR-002, FR-019, FR-020, FR-021
+ * Handles all API calls to the backend
  */
 
 import axios, { type AxiosInstance, type AxiosError } from 'axios'
 import { getConfig } from './config'
-import { mockKnowledgeData, getMockDialogueResponse } from './mockData'
 import type {
   KnowledgeAnalysisResponse,
   DialogueResponse,
@@ -15,11 +13,9 @@ import type {
 
 class ApiService {
   private client: AxiosInstance
-  private useMockData: boolean
 
   constructor() {
     const config = getConfig()
-    this.useMockData = config.useMockData
 
     this.client = axios.create({
       baseURL: config.apiBaseUrl,
@@ -68,15 +64,8 @@ class ApiService {
 
   /**
    * Analyze uploaded image and extract knowledge points
-   * Following FR-002, FR-021
    */
   async analyzeImage(imageFile: File): Promise<KnowledgeAnalysisResponse> {
-    if (this.useMockData) {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      return Promise.resolve(mockKnowledgeData)
-    }
-
     const formData = new FormData()
     formData.append('image', imageFile)
 
@@ -98,27 +87,22 @@ class ApiService {
 
   /**
    * Get AI dialogue response for a knowledge point
-   * Following FR-011, FR-012
    */
   async getDialogueResponse(
     knowledgePointId: string,
     message: string,
-    conversationHistory?: Array<{ sender: 'user' | 'ai'; content: string }>
+    conversationHistory?: Array<{ sender: 'user' | 'ai'; content: string }>,
+    knowledgePointTitle?: string,
+    knowledgePointDesc?: string
   ): Promise<DialogueResponse> {
-    if (this.useMockData) {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 800))
-      return Promise.resolve(
-        getMockDialogueResponse(knowledgePointId, message)
-      )
-    }
-
     try {
       const response = await this.client.post<DialogueResponse>(
         `/knowledge-points/${knowledgePointId}/dialogue`,
         {
           message,
           conversationHistory,
+          knowledgePointTitle,
+          knowledgePointDesc,
         }
       )
       return response.data
@@ -128,14 +112,7 @@ class ApiService {
   }
 
   /**
-   * Update mock data mode
-   */
-  updateMockDataMode(useMockData: boolean): void {
-    this.useMockData = useMockData
-  }
-
-  /**
-   * Error handler following FR-020
+   * Error handler
    */
   private handleError(error: unknown, defaultMessage: string): Error {
     if (axios.isAxiosError(error)) {

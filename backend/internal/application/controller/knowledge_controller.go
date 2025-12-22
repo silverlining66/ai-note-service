@@ -12,17 +12,13 @@ import (
 
 // KnowledgeController 知识点控制器
 type KnowledgeController struct {
-	mockService      *service.MockKnowledgeService
 	knowledgeService *service.KnowledgeService
-	useMockData      bool // 控制是否使用假数据
 }
 
 // NewKnowledgeController 创建知识点控制器
 func NewKnowledgeController() *KnowledgeController {
 	return &KnowledgeController{
-		mockService:      service.NewMockKnowledgeService(),
 		knowledgeService: service.NewKnowledgeService(),
-		useMockData:      false, // 默认使用真实AI服务
 	}
 }
 
@@ -51,26 +47,19 @@ func (ctrl *KnowledgeController) GetDialogue(c *gin.Context) {
 		return
 	}
 
-	// 3. 如果使用假数据模式
-	if ctrl.useMockData {
-		mockResponse := ctrl.mockService.GetMockDialogueResponse(knowledgePointId, req.Message)
-		common.SuccessResponse(c, mockResponse)
+	// 3. 验证前端必须传递知识点信息
+	if req.KnowledgePointTitle == "" || req.KnowledgePointDesc == "" {
+		common.ErrorResponse(c, errcode.InvalidParams, "请求参数不完整：必须提供 knowledgePointTitle 和 knowledgePointDesc")
 		return
 	}
 
-	// 4. 使用真实AI服务
-	// 获取知识点信息
-	title, description, err := ctrl.knowledgeService.GetKnowledgePointInfo(knowledgePointId)
-	if err != nil {
-		log.Printf("获取知识点信息失败: %v", err)
-		// 即使获取失败，也继续处理，使用通用提示词
-	}
+	log.Printf("对话请求 - ID: %s, Title: %s, Description: %s", knowledgePointId, req.KnowledgePointTitle, req.KnowledgePointDesc)
 
-	// 调用AI服务获取对话响应
+	// 4. 调用AI服务获取对话响应
 	response, err := ctrl.knowledgeService.GetDialogueResponse(
 		knowledgePointId,
-		title,
-		description,
+		req.KnowledgePointTitle,
+		req.KnowledgePointDesc,
 		req.Message,
 		req.ConversationHistory,
 	)
@@ -84,4 +73,3 @@ func (ctrl *KnowledgeController) GetDialogue(c *gin.Context) {
 	// 5. 返回成功响应
 	common.SuccessResponse(c, response)
 }
-

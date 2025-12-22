@@ -76,8 +76,21 @@ export const storage = {
           localStorage.removeItem(key)
         }
       })
+      console.log('[Storage] All dialogues cleared')
     } catch (error) {
       console.error('Failed to clear dialogues:', error)
+    }
+  },
+
+  /**
+   * Clear all app data (for debugging)
+   */
+  clearAll: (): void => {
+    try {
+      localStorage.clear()
+      console.log('[Storage] All storage cleared')
+    } catch (error) {
+      console.error('Failed to clear storage:', error)
     }
   },
 }

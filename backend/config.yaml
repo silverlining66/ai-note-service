@@ -7,9 +7,3 @@ ai:
   api_key: "300000825:9bbfee5dcdc222efa6d94032a60b31ca"
   default_model: "gemini-3-flash"
   timeout: 30 # seconds
-
-# 功能开关
-features:
-  use_mock_image_analysis: true  # 是否使用假数据进行图片分析（避免429错误）
-  use_mock_dialogue: false        # 是否使用假数据进行对话
-

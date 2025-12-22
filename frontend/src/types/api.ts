@@ -17,7 +17,6 @@ export interface PanelLayout {
 }
 
 export interface AppConfig {
-  useMockData: boolean
   apiBaseUrl: string
   environment: 'development' | 'production'
 }

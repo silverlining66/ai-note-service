@@ -20,6 +20,6 @@ export interface Conversation {
 
 export interface DialogueResponse {
   message: string
-  timestamp: Date
+  timestamp: string | Date
 }
 

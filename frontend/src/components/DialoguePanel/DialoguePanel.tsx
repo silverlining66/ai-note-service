@@ -13,14 +13,14 @@ interface DialoguePanelProps {
   knowledgePoint: KnowledgePoint
 }
 
-export const DialoguePanel: React.FC<DialoguePanelProps> = () => {
-  const { getConversation, sendMessage, currentKnowledgePointId } = useDialogue()
+export const DialoguePanel: React.FC<DialoguePanelProps> = ({ knowledgePoint }) => {
+  const { getConversation, sendMessage, currentKnowledgePoint } = useDialogue()
   const [inputValue, setInputValue] = useState('')
   const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const conversation = currentKnowledgePointId
-    ? getConversation(currentKnowledgePointId)
+  const conversation = currentKnowledgePoint
+    ? getConversation(currentKnowledgePoint.id)
     : null
 
   const scrollToBottom = () => {
@@ -32,11 +32,11 @@ export const DialoguePanel: React.FC<DialoguePanelProps> = () => {
   }, [conversation?.messages])
 
   const handleSend = async () => {
-    if (!inputValue.trim() || !currentKnowledgePointId || sending) return
+    if (!inputValue.trim() || !currentKnowledgePoint || sending) return
 
     setSending(true)
     try {
-      await sendMessage(currentKnowledgePointId, inputValue.trim())
+      await sendMessage(currentKnowledgePoint, inputValue.trim())
       setInputValue('')
     } catch (error) {
       console.error('Failed to send message:', error)
