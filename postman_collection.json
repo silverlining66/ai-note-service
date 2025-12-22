@@ -1,0 +1,93 @@
+{
+  "info": {
+    "name": "AI Note Service",
+    "description": "AI笔记服务API接口测试集合",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "健康检查",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "完整聊天",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"model\": \"gemini-3-flash\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": \"You are a helpful assistant.\"\n        },\n        {\n            \"role\": \"user\",\n            \"content\": \"你是谁？\"\n        }\n    ]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/chat",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "chat"]
+        }
+      }
+    },
+    {
+      "name": "简化聊天",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"message\": \"你好，请介绍一下Go语言\",\n    \"model\": \"gemini-3-flash\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/chat/simple",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "chat", "simple"]
+        }
+      }
+    },
+    {
+      "name": "多轮对话",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": \"You are a helpful assistant.\"\n        },\n        {\n            \"role\": \"user\",\n            \"content\": \"我叫小明\"\n        },\n        {\n            \"role\": \"assistant\",\n            \"content\": \"你好小明！很高兴认识你。\"\n        },\n        {\n            \"role\": \"user\",\n            \"content\": \"你还记得我叫什么名字吗？\"\n        }\n    ]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/chat",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "chat"]
+        }
+      }
+    }
+  ]
+}
+
