@@ -114,30 +114,33 @@ func (s *ImageAnalysisService) buildUserPrompt() string {
 	return `请分析这张图片中的知识点内容。
 
 要求：
-1. 识别图片中的主要知识点（1-3个核心概念）
-2. 每个主要知识点需要：
-   - 准确的标题和描述
-   - 合适的分类（数学、物理、化学、编程、人工智能等）
-   - 置信度（0-1之间）
-3. 为整体内容提供5个前置知识点（学习所需的基础）
-4. 为整体内容提供5个后置知识点（掌握后可以学习的内容）
+1. 提供一段完整的详细解释（detailedExplanation），解释图片中的主要知识内容
+2. 识别图片中的重点知识点（keyPoints），2-5个
+3. 为每个重点知识点提供一个趣味示例（funExamples），帮助理解
+4. 提供5个前置知识点（prerequisites），学习所需的基础
+5. 提供5个后置知识点（postrequisites），掌握后可以学习的内容
+6. 提供一段总结（conclusion），汇总学习建议
 
 请严格按照以下JSON格式返回（只返回JSON，不要其他说明文字）：
 
 {
-  "summary": [
+  "detailedExplanation": "这是一段完整的详细解释，介绍图片中的主要知识内容...",
+  "keyPoints": [
     {
       "id": "kp-001",
-      "title": "知识点标题",
+      "title": "重点知识点标题",
       "description": "详细描述",
       "category": "分类名称",
       "confidence": 0.95
     }
   ],
-  "graph": {
-    "nodes": [],
-    "edges": []
-  },
+  "funExamples": [
+    {
+      "knowledgePointId": "kp-001",
+      "title": "趣味示例标题",
+      "content": "生动有趣的示例内容，帮助理解知识点..."
+    }
+  ],
   "prerequisites": [
     {"id": "kp-p001", "title": "前置知识1", "description": "描述", "category": "分类"},
     {"id": "kp-p002", "title": "前置知识2", "description": "描述", "category": "分类"},
@@ -151,7 +154,8 @@ func (s *ImageAnalysisService) buildUserPrompt() string {
     {"id": "kp-n003", "title": "后置知识3", "description": "描述", "category": "分类"},
     {"id": "kp-n004", "title": "后置知识4", "description": "描述", "category": "分类"},
     {"id": "kp-n005", "title": "后置知识5", "description": "描述", "category": "分类"}
-  ]
+  ],
+  "conclusion": "总结：通过学习这些知识点，你将能够..."
 }`
 }
 

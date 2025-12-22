@@ -83,7 +83,7 @@ func (ctrl *ImageController) AnalyzeImage(c *gin.Context) {
 		return
 	}
 
-	log.Printf("图片分析成功，识别到 %d 个知识点", len(analysisResult.Summary))
+	log.Printf("图片分析成功，识别到 %d 个重点知识点", len(analysisResult.KeyPoints))
 
 	// 6. 返回成功响应
 	common.SuccessResponse(c, analysisResult)

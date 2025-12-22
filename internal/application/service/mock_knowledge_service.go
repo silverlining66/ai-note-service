@@ -19,7 +19,8 @@ func (s *MockKnowledgeService) GetMockKnowledgeAnalysis() *schema.KnowledgeAnaly
 	confidence2 := 0.88
 
 	return &schema.KnowledgeAnalysisResponse{
-		Summary: []schema.KnowledgePoint{
+		DetailedExplanation: "这张图片展示了机器学习和线性代数的核心概念。机器学习是人工智能的重要分支，通过算法让计算机从数据中学习规律。线性代数提供了处理高维数据的数学工具，包括矩阵运算、向量空间等基础概念，是机器学习算法的数学基础。",
+		KeyPoints: []schema.KnowledgePoint{
 			{
 				ID:          "kp-001",
 				Title:       "线性代数基础",
@@ -35,27 +36,16 @@ func (s *MockKnowledgeService) GetMockKnowledgeAnalysis() *schema.KnowledgeAnaly
 				Confidence:  &confidence2,
 			},
 		},
-		Graph: schema.KnowledgeGraph{
-			Nodes: []schema.KnowledgeGraphNode{
-				{
-					ID:       "kp-001",
-					Label:    "线性代数基础",
-					Position: schema.Position{X: 100, Y: 100},
-				},
-				{
-					ID:       "kp-002",
-					Label:    "机器学习入门",
-					Position: schema.Position{X: 300, Y: 100},
-				},
+		FunExamples: []schema.FunExample{
+			{
+				KnowledgePointID: "kp-001",
+				Title:            "矩阵就像数据表格",
+				Content:          "想象一个Excel表格，每一行代表一个学生，每一列代表一门课程的成绩。这个表格就是一个矩阵！矩阵运算就是对这些数据进行各种计算和变换。",
 			},
-			Edges: []schema.KnowledgeGraphEdge{
-				{
-					ID:     "edge-001",
-					Source: "kp-001",
-					Target: "kp-002",
-					Type:   "prerequisite",
-					Label:  "前置知识",
-				},
+			{
+				KnowledgePointID: "kp-002",
+				Title:            "机器学习就像教小孩认字",
+				Content:          "就像你给小孩看很多张猫和狗的照片，告诉他们哪些是猫哪些是狗，慢慢地小孩就能自己分辨了。机器学习也是这样，给计算机看很多数据和答案，它就能学会规律。",
 			},
 		},
 		Prerequisites: []schema.KnowledgePoint{
@@ -122,6 +112,7 @@ func (s *MockKnowledgeService) GetMockKnowledgeAnalysis() *schema.KnowledgeAnaly
 				Category:    "人工智能",
 			},
 		},
+		Conclusion: "通过掌握线性代数和机器学习的基础知识，你将能够理解现代AI技术的核心原理。建议先巩固数学基础，然后通过实际项目来深化理解。持续学习和实践是掌握这些知识的关键。",
 	}
 }
 

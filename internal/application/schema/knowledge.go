@@ -37,12 +37,22 @@ type KnowledgeGraph struct {
 	Edges []KnowledgeGraphEdge `json:"edges"`
 }
 
-// KnowledgeAnalysisResponse 图片分析响应
+// FunExample 趣味示例
+type FunExample struct {
+	KnowledgePointID string `json:"knowledgePointId"`
+	Title            string `json:"title"`
+	Content          string `json:"content"`
+	ImageURL         string `json:"imageUrl,omitempty"`
+}
+
+// KnowledgeAnalysisResponse 图片分析响应（新版本）
 type KnowledgeAnalysisResponse struct {
-	Summary        []KnowledgePoint `json:"summary"`
-	Graph          KnowledgeGraph   `json:"graph"`
-	Prerequisites  []KnowledgePoint `json:"prerequisites"`
-	Postrequisites []KnowledgePoint `json:"postrequisites"`
+	DetailedExplanation string           `json:"detailedExplanation"` // 完整的对这张图片的知识点详解
+	Prerequisites       []KnowledgePoint `json:"prerequisites"`        // 前置知识点
+	KeyPoints           []KnowledgePoint `json:"keyPoints"`            // 这张图片中的重点知识点
+	FunExamples         []FunExample     `json:"funExamples"`          // 重点知识点对应的趣味示例
+	Postrequisites      []KnowledgePoint `json:"postrequisites"`       // 这张图片对应的后置知识点
+	Conclusion          string           `json:"conclusion"`           // 最后的汇总
 }
 
 // ConversationMessage 对话消息
