@@ -12,6 +12,7 @@ import { KnowledgePanel } from './components/KnowledgePanel/KnowledgePanel'
 import { DialoguePanel } from './components/DialoguePanel/DialoguePanel'
 import { PanelLayout } from './components/PanelLayout/PanelLayout'
 import { clearOldMockDataDialogues } from './utils/clearOldCache'
+import { storage } from './utils/storage'
 
 function AppContent() {
   const {
@@ -87,9 +88,13 @@ function AppContent() {
 }
 
 function App() {
-  // Clear old mock data on app startup
+  // Clear all dialogues and old mock data on app startup
   React.useEffect(() => {
+    // Clear all dialogue histories on every app restart
+    storage.clearAllDialogues()
+    // Also clear old mock data for compatibility
     clearOldMockDataDialogues()
+    console.log('[App] All dialogues cleared on startup')
   }, [])
 
   return (

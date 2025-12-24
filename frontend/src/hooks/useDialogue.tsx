@@ -88,18 +88,24 @@ export const DialogueProvider: React.FC<{ children: React.ReactNode }> = ({
   const sendMessage = useCallback(
     async (knowledgePoint: KnowledgePoint, message: string) => {
       const knowledgePointId = knowledgePoint.id
-      const conversation = getConversation(knowledgePointId)
+      
+      // Get or create conversation
+      let conversation = conversations.get(knowledgePointId)
+      if (!conversation) {
+        conversation = getConversation(knowledgePointId)
+      }
       if (!conversation) return
 
-      // Add user message
+      // Create user message
       const userMessage: Message = {
-        id: `msg-${Date.now()}-user`,
+        id: `msg-${Date.now()}-${Math.random()}`,
         sender: 'user',
         content: message,
         timestamp: new Date(),
         status: 'sending',
       }
 
+      // Add user message immediately
       const updatedConversation: Conversation = {
         ...conversation,
         messages: [...conversation.messages, userMessage],
@@ -114,6 +120,7 @@ export const DialogueProvider: React.FC<{ children: React.ReactNode }> = ({
 
       try {
         // Get AI response with knowledge point info
+        // Use conversation messages before adding user message for history
         const response = await apiService.getDialogueResponse(
           knowledgePointId,
           message,
@@ -125,53 +132,60 @@ export const DialogueProvider: React.FC<{ children: React.ReactNode }> = ({
           knowledgePoint.description
         )
 
-        // Update user message status
-        userMessage.status = 'sent'
-
-        // Add AI message
-        const aiMessage: Message = {
-          id: `msg-${Date.now()}-ai`,
-          sender: 'ai',
-          content: response.message,
-          timestamp: typeof response.timestamp === 'string' 
-            ? new Date(response.timestamp) 
-            : response.timestamp,
-        }
-
-        const finalConversation: Conversation = {
-          ...updatedConversation,
-          messages: [...updatedConversation.messages, aiMessage],
-          updatedAt: new Date(),
-        }
-
+        // Update conversation with AI response atomically
         setConversations((prev) => {
+          const current = prev.get(knowledgePointId)
+          if (!current) return prev
+
+          // Update user message status to sent
+          const updatedUserMessage = { ...userMessage, status: 'sent' as const }
+
+          // Create AI message
+          const aiMessage: Message = {
+            id: `msg-${Date.now()}-${Math.random()}`,
+            sender: 'ai',
+            content: response.message,
+            timestamp: typeof response.timestamp === 'string' 
+              ? new Date(response.timestamp) 
+              : response.timestamp,
+          }
+
+          const finalConversation: Conversation = {
+            ...current,
+            messages: current.messages.map((m: Message) =>
+              m.id === userMessage.id ? updatedUserMessage : m
+            ).concat(aiMessage),
+            updatedAt: new Date(),
+          }
+
           const next = new Map(prev)
           next.set(knowledgePointId, finalConversation)
+          
+          // Save to localStorage
+          storage.saveDialogue(knowledgePointId, finalConversation)
+          
           return next
         })
-
-        // Save to localStorage
-        storage.saveDialogue(knowledgePointId, finalConversation)
       } catch (error) {
         // Update user message status to error
-        userMessage.status = 'error'
         setConversations((prev) => {
+          const current = prev.get(knowledgePointId)
+          if (!current) return prev
+
+          const updatedUserMessage = { ...userMessage, status: 'error' as const }
           const next = new Map(prev)
-          const existing = next.get(knowledgePointId)
-          if (existing) {
-            next.set(knowledgePointId, {
-              ...existing,
-              messages: existing.messages.map((m: Message) =>
-                m.id === userMessage.id ? userMessage : m
-              ),
-            })
-          }
+          next.set(knowledgePointId, {
+            ...current,
+            messages: current.messages.map((m: Message) =>
+              m.id === userMessage.id ? updatedUserMessage : m
+            ),
+          })
           return next
         })
         throw error
       }
     },
-    [getConversation]
+    [conversations, getConversation]
   )
 
   // Switch knowledge point
