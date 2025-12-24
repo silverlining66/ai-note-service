@@ -11,20 +11,18 @@ import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
+import type { Components } from 'react-markdown'
 
 interface MarkdownMessageProps {
   content: string
 }
 
 export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({ content }) => {
-  return (
-    <ReactMarkdown
-      remarkPlugins={[remarkMath, remarkGfm]}
-      rehypePlugins={[rehypeKatex]}
-      className="markdown-body"
-      components={{
-        // Headings
-        h1: ({ children }) => (
+  // @ts-ignore
+    // @ts-ignore
+    const components: Components = {
+    // Headings
+    h1: ({ children }) => (
           <h1 className="text-2xl font-bold mb-3 mt-4 text-white border-b border-white/20 pb-2">
             {children}
           </h1>
@@ -44,14 +42,14 @@ export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({ content }) => 
             {children}
           </h4>
         ),
-        
+
         // Paragraphs
         p: ({ children }) => (
           <p className="mb-3 leading-relaxed text-gray-100">
             {children}
           </p>
         ),
-        
+
         // Lists
         ul: ({ children }) => (
           <ul className="list-disc list-inside mb-3 space-y-1 text-gray-100">
@@ -68,18 +66,18 @@ export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({ content }) => 
             {children}
           </li>
         ),
-        
+
         // Code
-        code: ({inline: inline, children }) => {
+        code: ({ node, inline, className, children, ...props }) => {
           if (inline) {
             return (
-              <code className="px-1.5 py-0.5 bg-purple-500/20 rounded text-purple-200 font-mono text-sm">
+              <code className="px-1.5 py-0.5 bg-purple-500/20 rounded text-purple-200 font-mono text-sm" {...props}>
                 {children}
               </code>
             )
           }
           return (
-            <code className="block p-3 bg-black/30 rounded-lg my-2 overflow-x-auto font-mono text-sm text-green-300">
+            <code className="block p-3 bg-black/30 rounded-lg my-2 overflow-x-auto font-mono text-sm text-green-300" {...props}>
               {children}
             </code>
           )
@@ -89,14 +87,14 @@ export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({ content }) => 
             {children}
           </pre>
         ),
-        
+
         // Blockquote
         blockquote: ({ children }) => (
           <blockquote className="border-l-4 border-purple-500 pl-4 py-2 mb-3 text-gray-200 italic bg-purple-500/5">
             {children}
           </blockquote>
         ),
-        
+
         // Links
         a: ({ href, children }) => (
           <a
@@ -108,26 +106,26 @@ export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({ content }) => 
             {children}
           </a>
         ),
-        
+
         // Horizontal rule
         hr: () => (
           <hr className="my-4 border-white/20" />
         ),
-        
+
         // Strong (bold)
         strong: ({ children }) => (
           <strong className="font-bold text-white">
             {children}
           </strong>
         ),
-        
+
         // Emphasis (italic)
         em: ({ children }) => (
           <em className="italic text-gray-100">
             {children}
           </em>
         ),
-        
+
         // Table
         table: ({ children }) => (
           <div className="overflow-x-auto mb-3">
@@ -161,7 +159,14 @@ export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({ content }) => 
             {children}
           </td>
         ),
-      }}
+  }
+
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkMath, remarkGfm]}
+      rehypePlugins={[rehypeKatex]}
+      className="markdown-body"
+      components={components}
     >
       {content}
     </ReactMarkdown>
